@@ -1,0 +1,91 @@
+name: Python application
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  find-projects:
+    runs-on: ubuntu-latest
+    outputs:
+      projects: ${{ steps.all-projects.outputs.projects }}
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Find all projects
+        id: all-projects
+        run: |
+          PROJECTS=$(find . -name "pyproject.toml" -not -path "*/\.*" -not -path "*/venv/*" | xargs -I{} dirname {})
+          echo "projects=$(echo "$PROJECTS" | jq -R . | jq -s . | tr -d '\n')" >> $GITHUB_OUTPUT
+
+  test:
+    needs: find-projects
+    runs-on: ubuntu-latest
+    if: ${{ needs.find-projects.outputs.projects != '[]' && needs.find-projects.outputs.projects != '' }}
+    strategy:
+      matrix:
+        project: ${{ fromJson(needs.find-projects.outputs.projects) }}
+      fail-fast: false
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install poetry
+        run: pipx install "poetry == 1.8.5"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        id: setup-python
+        with:
+          python-version: 3.12
+          cache: "poetry"
+
+      - name: Configure Poetry virtualenvs
+        run: |
+          poetry config virtualenvs.create true
+          poetry config virtualenvs.in-project true
+
+      - name: Install the project
+        run: |
+          cd ${{ matrix.project }}
+          poetry install --no-interaction
+
+      - name: Lint formatting
+        run: |
+          cd ${{ matrix.project }}
+          if poetry run pip freeze | grep -q black; then
+            poetry run black --check .
+          else
+            echo "Black not installed"
+          fi
+
+      - name: Import formatting
+        run: |
+          cd ${{ matrix.project }}
+          if poetry run pip freeze | grep -q isort; then
+            poetry run isort -q --check . || true
+          else
+            echo "isort not installed"
+          fi
+
+      - name: Validate Poetry state
+        run: |
+          cd ${{ matrix.project }}
+          poetry check
+
+      - name: Test with pytest
+        run: |
+          cd ${{ matrix.project }}
+          if poetry run pip freeze | grep -q pytest; then
+            poetry run pytest
+          else
+            echo "Pytest not installed"
+          fi

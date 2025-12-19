@@ -2,11 +2,15 @@
 
 The modellogger package provides a standardized logging configuration for AIRR applications.
 
-## DefaultFormatter
+## Usage
+
+Install in a poetry project: `poetry add git+https://github.com/mlcommons/modellogger.git`
+
+### DefaultFormatter
 
 A class that formats log messages with UTC timestamps and optional ANSI color codes for console output.
 
-## get_logger
+### get_logger
 
 A function that creates configured loggers with console and optional file output.
 
@@ -17,7 +21,7 @@ logger = get_logger(__name__, app_name="modelrunner-api")
 
 ```
 
-## get_config_dict
+### get_config_dict
 
 Generates logging configuration dictionaries for use with logging.config.dictConfig. By default, the app name is derived from the package name, but that can be overridden.
 

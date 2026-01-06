@@ -35,6 +35,8 @@ class DefaultFormatter(logging.Formatter):
 
 
 def get_logger(name, app_name=None, level=logging.INFO, log_file=None):
+    if app_name is None and name is not None:
+        app_name = name.split(".")[0]
     logger = logging.getLogger(name)
 
     logger.handlers.clear()

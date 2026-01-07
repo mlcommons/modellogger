@@ -4,5 +4,5 @@ logger = get_logger(__name__)
 
 
 def lower_library_function():
-    logger.info(f"info in {__name__}")
-    logger.debug(f"debug in {__name__}")
+    logger.info(f"info in lower_library_function")
+    logger.debug(f"debug in lower_library_function")

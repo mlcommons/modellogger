@@ -19,7 +19,6 @@ def test_basics():
     assert r.returncode == 0
     assert r.stdout.decode() == "Hello World\n"
     log_lines = parse_log_lines(r)
-    print(len(log_lines))
 
     for l in log_lines:
         # print(l)
@@ -33,11 +32,42 @@ def test_basics():
 
     assert log_lines[1]['name'] == "tests.example_top_library"
     assert log_lines[1]['level'] == "INFO"
-    assert log_lines[1]['message'] == "info in tests.example_top_library"
+    assert log_lines[1]['message'] == "info in top_library_function"
 
     assert log_lines[2]['name'] == "tests.example_lower_library"
     assert log_lines[2]['level'] == "INFO"
-    assert log_lines[2]['message'] == "info in tests.example_lower_library"
+    assert log_lines[2]['message'] == "info in lower_library_function"
+
+def test_debug():
+    r = run_cli("--debug")
+    assert r.returncode == 0
+    assert r.stdout.decode() == "Hello World\n"
+    log_lines = parse_log_lines(r)
+    print(len(log_lines))
+
+    for l in log_lines:
+        print(l)
+        assert datetime.now(tz=UTC) - datetime.fromisoformat(l['datetime']) < timedelta(seconds=1)
+        assert l['app'] == "example_cli"
+    assert len(log_lines) == 6
+
+    assert log_lines[0]['message'] == "info in cli"
+
+    assert log_lines[1]['name'] == "__main__"
+    assert log_lines[1]['level'] == "DEBUG"
+    assert log_lines[1]['message'] == "debug in cli"
+
+    assert log_lines[2]['message'] == "info in top_library_function"
+
+    assert log_lines[3]['name'] == "tests.example_top_library"
+    assert log_lines[3]['level'] == "DEBUG"
+    assert log_lines[3]['message'] == "debug in top_library_function"
+
+    assert log_lines[4]['message'] == "info in lower_library_function"
+
+    assert log_lines[5]['name'] == "tests.example_lower_library"
+    assert log_lines[5]['level'] == "DEBUG"
+    assert log_lines[5]['message'] == "debug in lower_library_function"
 
 
 # example: '\x1b[97m2026-01-07T17:47:46Z - example_cli - tests.example_cli - INFO - cli info\x1b[0m'

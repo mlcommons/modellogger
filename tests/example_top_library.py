@@ -5,6 +5,6 @@ logger = get_logger(__name__)
 
 
 def top_library_function():
-    logger.info(f"info in {__name__}")
-    logger.debug(f"debug in {__name__}")
+    logger.info(f"info in top_library_function")
+    logger.debug(f"debug in top_library_function")
     lower_library_function()

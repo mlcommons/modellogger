@@ -1,6 +1,7 @@
 import logging
 import sys
 import time
+from logging import INFO
 
 
 class DefaultFormatter(logging.Formatter):
@@ -34,11 +35,7 @@ class DefaultFormatter(logging.Formatter):
         formatter.converter = time.gmtime
         return formatter.format(record)
 
-def configure_logging(app_name=".", level=None, log_file=None):
-    if logging.getLogger().hasHandlers():
-        print("skipping")
-        # TODO warn if this is being called with different arguments? Or called twice?
-        return
+def configure_logging(app_name=".", level=INFO, log_file=None):
     logger = logging.getLogger()
     if level:
         logger.setLevel(level)

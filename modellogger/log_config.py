@@ -1,4 +1,5 @@
 import logging
+import sys
 import time
 
 
@@ -33,25 +34,33 @@ class DefaultFormatter(logging.Formatter):
         formatter.converter = time.gmtime
         return formatter.format(record)
 
-
-def get_logger(name, app_name=".", level=logging.INFO, log_file=None):
-    logger = logging.getLogger(name)
-
-    logger.handlers.clear()
-
+def set_up_root_logger(app_name=".", level=logging.INFO, log_file=None):
+    if logging.getLogger().hasHandlers():
+        print("skipping")
+        # TODO warn if this is being called with different arguments? Or called twice?
+        return
+    logger = logging.getLogger()
     logger.setLevel(level)
-    logger.propagate = False
-
-    console_handler = logging.StreamHandler()
-    console_handler.setLevel(level)
-    console_handler.setFormatter(DefaultFormatter(app_name, include_colors=True))
-    logger.addHandler(console_handler)
+    logger.handlers.clear()
 
     if log_file:
         file_handler = logging.FileHandler(log_file)
         file_handler.setLevel(level)
         file_handler.setFormatter(DefaultFormatter(app_name, include_colors=False))
         logger.addHandler(file_handler)
+    else:
+        console_handler = logging.StreamHandler(stream=sys.stderr)
+        console_handler.setLevel(level)
+        console_handler.setFormatter(DefaultFormatter(app_name, include_colors=True))
+        logger.addHandler(console_handler)
+
+
+def get_logger(name, app_name=".", level=logging.INFO, log_file=None):
+    if not logging.getLogger().hasHandlers() and (app_name != "."):
+        set_up_root_logger(app_name, level, log_file)
+    logger = logging.getLogger(name)
+
+    logger.setLevel(level)
 
     return logger
 

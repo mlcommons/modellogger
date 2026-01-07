@@ -34,7 +34,7 @@ class DefaultFormatter(logging.Formatter):
         formatter.converter = time.gmtime
         return formatter.format(record)
 
-def set_up_root_logger(app_name=".", level=None, log_file=None):
+def configure_logging(app_name=".", level=None, log_file=None):
     if logging.getLogger().hasHandlers():
         print("skipping")
         # TODO warn if this is being called with different arguments? Or called twice?
@@ -57,14 +57,8 @@ def set_up_root_logger(app_name=".", level=None, log_file=None):
         logger.addHandler(console_handler)
 
 
-def get_logger(name, app_name=".", level=None, log_file=None):
-    if not logging.getLogger().hasHandlers() and (app_name != "."):
-        set_up_root_logger(app_name, level, log_file)
+def get_logger(name):
     logger = logging.getLogger(name)
-
-    if level:
-        logger.setLevel(level)
-
     return logger
 
 

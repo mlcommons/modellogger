@@ -84,8 +84,8 @@ def test_default_formatter_app_name_default(monkeypatch):
     # Patch the __name__ attribute using the imported module
     monkeypatch.setattr(log_config, "__name__", "mypackage.submodule")
     formatter = DefaultFormatter()
-    assert formatter.app_name == "mypackage"
+    assert formatter.app_name == "."
 
     monkeypatch.setattr(log_config, "__name__", "mymodule")
     formatter = DefaultFormatter()
-    assert formatter.app_name == "mymodule"
+    assert formatter.app_name == "."

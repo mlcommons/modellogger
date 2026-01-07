@@ -13,13 +13,13 @@ class DefaultFormatter(logging.Formatter):
         "RESET": "\x1b[0m",
     }
 
-    def __init__(self, app_name=None, include_colors=True):
+    def __init__(self, app_name=".", include_colors=True):
         super().__init__()
-        if app_name is None:
-            app_name = __name__.split(".")[0]
         self.app_name = app_name
         self.include_colors = include_colors
-        self.base_format = "%(asctime)s - {app_name} - %(levelname)s - %(message)s"
+        self.base_format = (
+            "%(asctime)s - {app_name} - %(name)s - %(levelname)s - %(message)s"
+        )
 
     def format(self, record):
         date_format = "%Y-%m-%dT%H:%M:%SZ"
@@ -34,7 +34,7 @@ class DefaultFormatter(logging.Formatter):
         return formatter.format(record)
 
 
-def get_logger(name, app_name=None, level=logging.INFO, log_file=None):
+def get_logger(name, app_name=".", level=logging.INFO, log_file=None):
     logger = logging.getLogger(name)
 
     logger.handlers.clear()
@@ -56,9 +56,7 @@ def get_logger(name, app_name=None, level=logging.INFO, log_file=None):
     return logger
 
 
-def get_config_dict(app_name=None, log_file=None):
-    if app_name is None:
-        app_name = __name__.split(".")[0]
+def get_config_dict(app_name=".", log_file=None):
     config = {
         "version": 1,
         "disable_existing_loggers": False,

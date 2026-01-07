@@ -17,7 +17,9 @@ class DefaultFormatter(logging.Formatter):
         super().__init__()
         self.app_name = app_name
         self.include_colors = include_colors
-        self.base_format = "%(asctime)s - {app_name} - %(name)s - %(levelname)s - %(message)s"
+        self.base_format = (
+            "%(asctime)s - {app_name} - %(name)s - %(levelname)s - %(message)s"
+        )
 
     def format(self, record):
         date_format = "%Y-%m-%dT%H:%M:%SZ"

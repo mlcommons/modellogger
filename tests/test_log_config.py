@@ -1,7 +1,12 @@
 import logging
 
 import modellogger.log_config as log_config
-from modellogger.log_config import DefaultFormatter, get_config_dict, get_logger, configure_logging
+from modellogger.log_config import (
+    DefaultFormatter,
+    get_config_dict,
+    get_logger,
+    configure_logging,
+)
 
 
 def test_default_formatter_no_colors():
@@ -39,12 +44,14 @@ def test_default_formatter_timestamp_utc():
     formatted = formatter.format(record)
     assert "2021-01-01T00:00:00Z" in formatted
 
+
 def test_configure_logging():
     configure_logging("an_app")
     root_logger = logging.getLogger()
     assert root_logger.name == "root"
     assert root_logger.level == logging.INFO
     assert isinstance(root_logger.handlers[0], logging.StreamHandler)
+
 
 def test_configure_logging_with_file(tmp_path):
     log_file = tmp_path / "test.log"
@@ -59,7 +66,6 @@ def test_configure_logging_with_file(tmp_path):
 def test_get_logger_basic():
     logger = get_logger("test_logger")
     assert logger.name == "test_logger"
-
 
 
 def test_get_config_dict_basic():

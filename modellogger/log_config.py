@@ -35,6 +35,7 @@ class DefaultFormatter(logging.Formatter):
         formatter.converter = time.gmtime
         return formatter.format(record)
 
+
 def configure_logging(app_name=".", level=INFO, log_file=None):
     logger = logging.getLogger()
     if level:

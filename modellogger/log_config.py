@@ -38,19 +38,16 @@ class DefaultFormatter(logging.Formatter):
 
 def configure_logging(app_name=".", level=INFO, log_file=None):
     logger = logging.getLogger()
-    if level:
-        logger.setLevel(level)
+    logger.setLevel(level)
 
     logger.handlers.clear()
 
     if log_file:
         file_handler = logging.FileHandler(log_file)
-        file_handler.setLevel(level)
         file_handler.setFormatter(DefaultFormatter(app_name, include_colors=False))
         logger.addHandler(file_handler)
     else:
         console_handler = logging.StreamHandler(stream=sys.stderr)
-        console_handler.setLevel(level)
         console_handler.setFormatter(DefaultFormatter(app_name, include_colors=True))
         logger.addHandler(console_handler)
 

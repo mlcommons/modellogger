@@ -6,19 +6,48 @@ The modellogger package provides a standardized logging configuration for AIRR a
 
 Install in a poetry project: `poetry add git+https://github.com/mlcommons/modellogger.git`
 
+Near the top of any file where you want to log, do something like:
+
+```python
+from modellogger.log_config import get_logger
+logger = get_logger(__name__)
+```
+
+Then as early as possible in your program's startup, tell it how to
+handle the logging:
+
+```python
+import logging
+from modellogger.log_config import configure_logging
+
+configure_logging(app_name="myapp", level=logging.INFO)
+```
+
+
+You can then log like this
+```python
+    logger.info("some info logging")
+```
+
+The default output looks like this:
+
+```
+2026-01-09T21:14:13Z - myapp - __main__ - INFO - some info logging
+```
+
+
 ### DefaultFormatter
 
 A class that formats log messages with UTC timestamps and optional ANSI color codes for console output.
 
-### get_logger
+### configure_logging
 
-A function that creates configured loggers with console and optional file output.
+A function that configure the root logger with console and optional file output.
 
 ```
-from modellogger.log_config import get_logger
+from modellogger.log_config import configure_logging
 
-logger = get_logger(__name__, app_name="modelrunner-api")
-
+logger = configure_logging(app_name="modelrunner-api", file="./app.log", level=logging.DEBUG)
 ```
 
 ### get_config_dict

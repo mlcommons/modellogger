@@ -1,5 +1,7 @@
 import logging
+import sys
 import time
+from logging import INFO
 
 
 class DefaultFormatter(logging.Formatter):
@@ -34,25 +36,24 @@ class DefaultFormatter(logging.Formatter):
         return formatter.format(record)
 
 
-def get_logger(name, app_name=".", level=logging.INFO, log_file=None):
-    logger = logging.getLogger(name)
+def configure_logging(app_name=".", level=INFO, log_file=None):
+    logger = logging.getLogger()
+    logger.setLevel(level)
 
     logger.handlers.clear()
 
-    logger.setLevel(level)
-    logger.propagate = False
-
-    console_handler = logging.StreamHandler()
-    console_handler.setLevel(level)
-    console_handler.setFormatter(DefaultFormatter(app_name, include_colors=True))
-    logger.addHandler(console_handler)
-
     if log_file:
         file_handler = logging.FileHandler(log_file)
-        file_handler.setLevel(level)
         file_handler.setFormatter(DefaultFormatter(app_name, include_colors=False))
         logger.addHandler(file_handler)
+    else:
+        console_handler = logging.StreamHandler(stream=sys.stderr)
+        console_handler.setFormatter(DefaultFormatter(app_name, include_colors=True))
+        logger.addHandler(console_handler)
 
+
+def get_logger(name):
+    logger = logging.getLogger(name)
     return logger
 
 

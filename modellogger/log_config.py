@@ -45,6 +45,9 @@ def configure_logging(
     """Configures the root logger. Preserves existing handlers (if any), but
     sets their formatters to use the DefaultFormatter.
 
+    NOTE: if you call this function multiple times, you may end up with
+    duplicate log messages, since each call adds new handlers to the root logger.
+
     Args:
         app_name: Name of the application to include in log messages.
         level: Logging level to set.
@@ -53,29 +56,12 @@ def configure_logging(
     logger = logging.getLogger()
     logger.setLevel(level)
 
-    # check for existing matching handlers
-    existing_file_handler = False
-    existing_stream_handler = False
-    for handler in logger.handlers:
-        if (
-            isinstance(handler, logging.FileHandler)
-            and log_file is not None
-            and handler.baseFilename == logging.FileHandler(log_file).baseFilename
-        ):
-            existing_file_handler = True
-        elif (
-            isinstance(handler, logging.StreamHandler) and handler.stream == sys.stderr
-        ):
-            existing_stream_handler = True
-
     if log_file:
-        if not existing_file_handler:
-            file_handler = logging.FileHandler(log_file)
-            logger.addHandler(file_handler)
+        file_handler = logging.FileHandler(log_file)
+        logger.addHandler(file_handler)
     else:
-        if not existing_stream_handler:
-            console_handler = logging.StreamHandler(stream=sys.stderr)
-            logger.addHandler(console_handler)
+        console_handler = logging.StreamHandler(stream=sys.stderr)
+        logger.addHandler(console_handler)
 
     # set formatter for all handlers
     for handler in logger.handlers:

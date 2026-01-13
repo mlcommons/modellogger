@@ -60,7 +60,7 @@ def configure_logging(
         if (
             isinstance(handler, logging.FileHandler)
             and log_file is not None
-            and handler.baseFilename == os.path.abspath(os.fspath(log_file))
+            and handler.baseFilename == logging.FileHandler(log_file).baseFilename
         ):
             existing_file_handler = True
         elif (

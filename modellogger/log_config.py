@@ -1,7 +1,7 @@
 import logging
 import sys
 import time
-from logging import INFO
+from typing import Any, Dict, Optional
 
 
 class DefaultFormatter(logging.Formatter):
@@ -15,7 +15,7 @@ class DefaultFormatter(logging.Formatter):
         "RESET": "\x1b[0m",
     }
 
-    def __init__(self, app_name=".", include_colors=True):
+    def __init__(self, app_name: str = ".", include_colors: bool = True):
         super().__init__()
         self.app_name = app_name
         self.include_colors = include_colors
@@ -23,7 +23,7 @@ class DefaultFormatter(logging.Formatter):
             "%(asctime)s - {app_name} - %(name)s - %(levelname)s - %(message)s"
         )
 
-    def format(self, record):
+    def format(self, record: logging.LogRecord) -> str:
         date_format = "%Y-%m-%dT%H:%M:%SZ"
         log_fmt = self.base_format.format(app_name=self.app_name)
 
@@ -36,7 +36,9 @@ class DefaultFormatter(logging.Formatter):
         return formatter.format(record)
 
 
-def configure_logging(app_name=".", level=INFO, log_file=None):
+def configure_logging(
+    app_name: str = ".", level: int = logging.INFO, log_file: Optional[str] = None
+) -> None:
     logger = logging.getLogger()
     logger.setLevel(level)
 
@@ -52,13 +54,15 @@ def configure_logging(app_name=".", level=INFO, log_file=None):
         logger.addHandler(console_handler)
 
 
-def get_logger(name):
+def get_logger(name: str) -> logging.Logger:
     logger = logging.getLogger(name)
     return logger
 
 
-def get_config_dict(app_name=".", log_file=None):
-    config = {
+def get_config_dict(
+    app_name: str = ".", log_file: Optional[str] = None
+) -> Dict[str, Any]:
+    config: Dict[str, Any] = {
         "version": 1,
         "disable_existing_loggers": False,
         "formatters": {

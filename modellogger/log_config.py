@@ -68,12 +68,14 @@ def configure_logging(
         ):
             existing_stream_handler = True
 
-    if log_file and not existing_file_handler:
-        file_handler = logging.FileHandler(log_file)
-        logger.addHandler(file_handler)
-    elif not existing_stream_handler:
-        console_handler = logging.StreamHandler(stream=sys.stderr)
-        logger.addHandler(console_handler)
+    if log_file:
+        if not existing_file_handler:
+            file_handler = logging.FileHandler(log_file)
+            logger.addHandler(file_handler)
+    else:
+        if not existing_stream_handler:
+            console_handler = logging.StreamHandler(stream=sys.stderr)
+            logger.addHandler(console_handler)
 
     # set formatter for all handlers
     for handler in logger.handlers:

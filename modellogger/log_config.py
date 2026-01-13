@@ -1,4 +1,5 @@
 import logging
+import os
 import sys
 import time
 from typing import Any, Dict, Optional
@@ -37,21 +38,51 @@ class DefaultFormatter(logging.Formatter):
 
 
 def configure_logging(
-    app_name: str = ".", level: int = logging.INFO, log_file: Optional[str] = None
+    app_name: str = ".",
+    level: int = logging.INFO,
+    log_file: Optional[str] = None,
 ) -> None:
+    """Configures the root logger. Preserves existing handlers (if any), but
+    sets their formatters to use the DefaultFormatter.
+
+    Args:
+        app_name: Name of the application to include in log messages.
+        level: Logging level to set.
+        log_file: If provided, log to this file instead of stderr.
+    """
     logger = logging.getLogger()
     logger.setLevel(level)
 
-    logger.handlers.clear()
+    # check for existing matching handlers
+    existing_file_handler = False
+    existing_stream_handler = False
+    for handler in logger.handlers:
+        if (
+            isinstance(handler, logging.FileHandler)
+            and log_file is not None
+            and handler.baseFilename == os.path.abspath(os.fspath(log_file))
+        ):
+            existing_file_handler = True
+        elif (
+            isinstance(handler, logging.StreamHandler) and handler.stream == sys.stderr
+        ):
+            existing_stream_handler = True
 
-    if log_file:
+    if log_file and not existing_file_handler:
         file_handler = logging.FileHandler(log_file)
-        file_handler.setFormatter(DefaultFormatter(app_name, include_colors=False))
         logger.addHandler(file_handler)
-    else:
+    elif not existing_stream_handler:
         console_handler = logging.StreamHandler(stream=sys.stderr)
-        console_handler.setFormatter(DefaultFormatter(app_name, include_colors=True))
         logger.addHandler(console_handler)
+
+    # set formatter for all handlers
+    for handler in logger.handlers:
+        handler.setFormatter(
+            DefaultFormatter(
+                app_name=app_name,
+                include_colors=isinstance(handler, logging.StreamHandler),
+            )
+        )
 
 
 def get_logger(name: str) -> logging.Logger:

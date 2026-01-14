@@ -50,7 +50,7 @@ def test_configure_logging():
     root_logger = logging.getLogger()
     assert root_logger.name == "root"
     assert root_logger.level == logging.INFO
-    assert isinstance(root_logger.handlers[0], logging.StreamHandler)
+    assert isinstance(root_logger.handlers[-1], logging.StreamHandler)
 
 
 def test_configure_logging_with_file(tmp_path):
@@ -60,7 +60,7 @@ def test_configure_logging_with_file(tmp_path):
     root_logger = logging.getLogger()
     assert root_logger.name == "root"
     assert root_logger.level == logging.INFO
-    assert isinstance(root_logger.handlers[0], logging.FileHandler)
+    assert isinstance(root_logger.handlers[-1], logging.FileHandler)
 
 
 def test_get_logger_basic():

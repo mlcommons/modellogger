@@ -1,5 +1,4 @@
 import logging
-import os
 import sys
 import time
 from typing import Any, Dict, Optional
@@ -42,8 +41,7 @@ def configure_logging(
     level: int = logging.INFO,
     log_file: Optional[str] = None,
 ) -> None:
-    """Configures the root logger. Preserves existing handlers (if any), but
-    sets their formatters to use the DefaultFormatter.
+    """Configures the root logger. Preserves existing handlers (if any).
 
     NOTE: if you call this function multiple times, you may end up with
     duplicate log messages, since each call adds new handlers to the root logger.
@@ -58,19 +56,12 @@ def configure_logging(
 
     if log_file:
         file_handler = logging.FileHandler(log_file)
+        file_handler.setFormatter(DefaultFormatter(app_name, include_colors=False))
         logger.addHandler(file_handler)
     else:
         console_handler = logging.StreamHandler(stream=sys.stderr)
+        console_handler.setFormatter(DefaultFormatter(app_name, include_colors=True))
         logger.addHandler(console_handler)
-
-    # set formatter for all handlers
-    for handler in logger.handlers:
-        handler.setFormatter(
-            DefaultFormatter(
-                app_name=app_name,
-                include_colors=isinstance(handler, logging.StreamHandler),
-            )
-        )
 
 
 def get_logger(name: str) -> logging.Logger:

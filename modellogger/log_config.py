@@ -70,7 +70,9 @@ def get_logger(name: str) -> logging.Logger:
 
 
 def get_config_dict(
-    app_name: str = ".", log_file: Optional[str] = None
+    app_name: str = ".",
+    level: int = logging.INFO,
+    log_file: Optional[str] = None,
 ) -> Dict[str, Any]:
     config: Dict[str, Any] = {
         "version": 1,
@@ -90,18 +92,16 @@ def get_config_dict(
         "handlers": {
             "console": {
                 "class": "logging.StreamHandler",
-                "level": "INFO",
                 "formatter": "default_console",
                 "stream": "ext://sys.stdout",
             }
         },
-        "root": {"level": "DEBUG", "handlers": ["console"]},
+        "root": {"level": level, "handlers": ["console"]},
     }
 
     if log_file:
         config["handlers"]["file"] = {
             "class": "logging.FileHandler",
-            "level": "DEBUG",
             "formatter": "default_file",
             "filename": log_file,
             "mode": "a",

@@ -75,16 +75,24 @@ def test_get_config_dict_basic():
     console_formatter = config["formatters"]["default_console"]
     assert console_formatter["app_name"] == "test_app"
     assert console_formatter["include_colors"] is True
+    assert "root" in config
+    assert "level" in config["root"]
+    assert config["root"]["level"] == logging.INFO
 
 
-def test_get_config_dict_with_file():
-    config = get_config_dict(app_name="test_app", log_file="/tmp/app.log")
+def test_get_config_dict_with_debug_file():
+    config = get_config_dict(
+        app_name="test_app", level=logging.WARN, log_file="/tmp/app.log"
+    )
     assert "file" in config["handlers"]
     file_handler = config["handlers"]["file"]
     assert file_handler["filename"] == "/tmp/app.log"
     assert "default_file" in config["formatters"]
     file_formatter = config["formatters"]["default_file"]
     assert file_formatter["include_colors"] is False
+    assert "root" in config
+    assert "level" in config["root"]
+    assert config["root"]["level"] == logging.WARN
 
 
 def test_default_formatter_app_name_default(monkeypatch):

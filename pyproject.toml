@@ -1,12 +1,26 @@
 [tool.poetry]
-name = "modellogger"
-version = "0.1.0"
-description = ""
-authors = ["dhosterman <daniel@danielhosterman.com>"]
+name = "airr-modellogger"
+version = "0.1.2"
+description = "Python logging configuration library for MLCommons AIRR applications."
+authors = ["Daniel Hosterman <daniel@mlcommons.org>"]
 readme = "README.md"
+packages = [{include = "modellogger"}]
+homepage = "https://github.com/mlcommons/modellogger"
+repository = "https://github.com/mlcommons/modellogger"
+documentation = "https://github.com/mlcommons/modellogger#readme"
+keywords = ["logging", "internal"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+]
 
 [tool.poetry.dependencies]
-python = ">=3.10"
+python = ">=3.12,<4.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^9.0.2"

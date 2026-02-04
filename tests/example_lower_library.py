@@ -1,4 +1,4 @@
-from modellogger.log_config import get_logger
+from airrlogger.log_config import get_logger
 
 logger = get_logger(__name__)
 

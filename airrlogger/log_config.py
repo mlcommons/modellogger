@@ -73,6 +73,7 @@ def get_config_dict(
     app_name: str = ".",
     level: int = logging.INFO,
     log_file: Optional[str] = None,
+    include_colors: bool = False,
 ) -> Dict[str, Any]:
     config: Dict[str, Any] = {
         "version": 1,
@@ -81,12 +82,12 @@ def get_config_dict(
             "default_console": {
                 "()": f"{__name__}.DefaultFormatter",
                 "app_name": app_name,
-                "include_colors": True,
+                "include_colors": include_colors,
             },
             "default_file": {
                 "()": f"{__name__}.DefaultFormatter",
                 "app_name": app_name,
-                "include_colors": False,
+                "include_colors": include_colors,
             },
         },
         "handlers": {

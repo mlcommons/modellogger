@@ -1,7 +1,8 @@
 import logging
 
 import click
-from modellogger.log_config import get_logger, configure_logging
+
+from airrlogger.log_config import configure_logging, get_logger
 from tests.example_top_library import top_library_function
 
 

@@ -1,15 +1,15 @@
-# Modellogger
+# airrlogger
 
-The modellogger package provides a standardized logging configuration for AIRR applications.
+The airrlogger package provides a standardized logging configuration for AIRR applications.
 
 ## Usage
 
-Install in a poetry project: `poetry add git+https://github.com/mlcommons/modellogger.git`
+Install in a poetry project: `poetry add airrlogger`
 
 Near the top of any file where you want to log, do something like:
 
 ```python
-from modellogger.log_config import get_logger
+from airrlogger.log_config import get_logger
 logger = get_logger(__name__)
 ```
 
@@ -18,7 +18,7 @@ handle the logging:
 
 ```python
 import logging
-from modellogger.log_config import configure_logging
+from airrlogger.log_config import configure_logging
 
 configure_logging(app_name="myapp", level=logging.INFO)
 ```
@@ -45,7 +45,7 @@ A class that formats log messages with UTC timestamps and optional ANSI color co
 A function that configure the root logger with console and optional file output.
 
 ```
-from modellogger.log_config import configure_logging
+from airrlogger.log_config import configure_logging
 
 logger = configure_logging(app_name="modelrunner-api", file="./app.log", level=logging.DEBUG)
 ```

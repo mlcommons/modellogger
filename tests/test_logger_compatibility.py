@@ -6,7 +6,7 @@ import logging
 
 import pytest
 
-from modellogger.log_config import DefaultFormatter, get_logger
+from airrlogger.log_config import DefaultFormatter, get_logger
 
 
 def test_standard_logging_levels():

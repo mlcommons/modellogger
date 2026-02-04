@@ -1,10 +1,10 @@
 [tool.poetry]
-name = "airr-modellogger"
-version = "0.1.2"
+name = "airrlogger"
+version = "0.1.0"
 description = "Python logging configuration library for MLCommons AIRR applications."
 authors = ["Daniel Hosterman <daniel@mlcommons.org>"]
 readme = "README.md"
-packages = [{include = "modellogger"}]
+packages = [{include = "airrlogger"}]
 homepage = "https://github.com/mlcommons/modellogger"
 repository = "https://github.com/mlcommons/modellogger"
 documentation = "https://github.com/mlcommons/modellogger#readme"

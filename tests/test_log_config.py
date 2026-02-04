@@ -1,11 +1,11 @@
 import logging
 
-import modellogger.log_config as log_config
-from modellogger.log_config import (
+import airrlogger.log_config as log_config
+from airrlogger.log_config import (
     DefaultFormatter,
+    configure_logging,
     get_config_dict,
     get_logger,
-    configure_logging,
 )
 
 
@@ -70,6 +70,18 @@ def test_get_logger_basic():
 
 def test_get_config_dict_basic():
     config = get_config_dict(app_name="test_app")
+    assert config["version"] == 1
+    assert "default_console" in config["formatters"]
+    console_formatter = config["formatters"]["default_console"]
+    assert console_formatter["app_name"] == "test_app"
+    assert console_formatter["include_colors"] is False
+    assert "root" in config
+    assert "level" in config["root"]
+    assert config["root"]["level"] == logging.INFO
+
+
+def test_get_config_dict_with_include_colors():
+    config = get_config_dict(app_name="test_app", include_colors=True)
     assert config["version"] == 1
     assert "default_console" in config["formatters"]
     console_formatter = config["formatters"]["default_console"]

@@ -1,10 +1,25 @@
+import inspect
 import logging
+import os
 import sys
 import time
 from typing import Any, Dict, Optional
 
 
-class DefaultFormatter(logging.Formatter):
+class VariantFormatter(logging.Formatter):
+    """This allows us to pass arbitrary arguments to our Formatter class
+    without breaking compatibility with the base Formatter class."""
+
+    def __init__(self, *args, **kwargs):
+        fmt = kwargs.get("fmt", None)
+        datefmt = kwargs.get("datefmt", None)
+        style = kwargs.get("style", "%")
+        validate = kwargs.get("validate", True)
+        defaults = kwargs.get("defaults", None)
+        super().__init__(fmt, datefmt, style, validate, defaults=defaults)
+
+
+class DefaultFormatter(VariantFormatter):
     converter = time.gmtime  # type: ignore
     COLORS = {
         "DEBUG": "\x1b[38;21m",
@@ -14,14 +29,12 @@ class DefaultFormatter(logging.Formatter):
         "CRITICAL": "\x1b[31;1m",
         "RESET": "\x1b[0m",
     }
+    base_format = "%(asctime)s - {app_name} - %(name)s - %(levelname)s - %(message)s"
 
     def __init__(self, app_name: str = ".", include_colors: bool = True):
         super().__init__()
         self.app_name = app_name
         self.include_colors = include_colors
-        self.base_format = (
-            "%(asctime)s - {app_name} - %(name)s - %(levelname)s - %(message)s"
-        )
 
     def format(self, record: logging.LogRecord) -> str:
         date_format = "%Y-%m-%dT%H:%M:%SZ"
@@ -36,10 +49,49 @@ class DefaultFormatter(logging.Formatter):
         return formatter.format(record)
 
 
+class CallStackFilter(logging.Filter):
+    """This filter finds and returns the fully-qualified call stack
+    where the logger.debug|info|error (etc) call happened."""
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        frame = inspect.currentframe()
+        while frame is not None:
+            if (
+                frame.f_code.co_filename == record.pathname
+                and frame.f_lineno == record.lineno
+            ):
+                chunks = []
+
+                module = os.path.splitext(os.path.basename(record.pathname))[0]
+                if module != "<module>":
+                    chunks.append(module)
+
+                qualname = frame.f_code.co_qualname
+                if qualname != "<module>":
+                    chunks.append(qualname)
+
+                record.caller = ".".join(chunks)  # type: ignore[attr-defined]
+                break
+
+            frame = frame.f_back
+        else:
+            record.caller = f"{record.module}.{record.funcName}"  # type: ignore[attr-defined]
+        return True
+
+
+class DebuggingFormatter(DefaultFormatter):
+    base_format = "%(asctime)s - {app_name} - %(name)s - %(levelname)s - %(caller)s:%(lineno)d - %(message)s"
+
+    def format(self, record: logging.LogRecord) -> str:
+        CallStackFilter().filter(record)
+        return super().format(record)
+
+
 def configure_logging(
     app_name: str = ".",
     level: int = logging.INFO,
     log_file: Optional[str] = None,
+    formatter: type[VariantFormatter] = DefaultFormatter,
 ) -> None:
     """Configures the root logger. Preserves existing handlers (if any).
 
@@ -56,11 +108,11 @@ def configure_logging(
 
     if log_file:
         file_handler = logging.FileHandler(log_file)
-        file_handler.setFormatter(DefaultFormatter(app_name, include_colors=False))
+        file_handler.setFormatter(formatter(app_name, include_colors=False))
         logger.addHandler(file_handler)
     else:
         console_handler = logging.StreamHandler(stream=sys.stderr)
-        console_handler.setFormatter(DefaultFormatter(app_name, include_colors=True))
+        console_handler.setFormatter(formatter(app_name, include_colors=True))
         logger.addHandler(console_handler)
 
 

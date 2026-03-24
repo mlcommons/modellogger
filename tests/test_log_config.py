@@ -2,6 +2,7 @@ import logging
 
 import airrlogger.log_config as log_config
 from airrlogger.log_config import (
+    DebuggingFormatter,
     DefaultFormatter,
     configure_logging,
     get_config_dict,
@@ -43,6 +44,28 @@ def test_default_formatter_timestamp_utc():
     record.created = 1609459200.0
     formatted = formatter.format(record)
     assert "2021-01-01T00:00:00Z" in formatted
+
+
+def test_debugging_formatter():
+    formatter = DebuggingFormatter(app_name="test_app", include_colors=False)
+    record = logging.LogRecord(
+        "name",
+        logging.WARNING,
+        "pathname",
+        123,
+        "message",
+        [],
+        None,
+        "test_debugging_formatter",
+    )
+    # this is 2021-01-01 00:00:00 UTC
+    record.created = 1609459200.0
+    formatted = formatter.format(record)
+    assert "test_app" in formatted
+    assert "WARNING" in formatted
+    assert "message" in formatted
+    assert "pathname.test_debugging_formatter:123" in formatted
+    assert formatted.startswith("2021-01-01T00:00:00Z")
 
 
 def test_configure_logging():

@@ -2,7 +2,9 @@ import pathlib
 import re
 import subprocess
 import sys
-from datetime import datetime, timedelta, UTC
+from datetime import UTC, datetime, timedelta
+
+from sqlalchemy import False_
 
 from tests import example_cli
 
@@ -33,12 +35,15 @@ def test_basics():
 
     assert log_lines[0]["name"] == "__main__"
     assert log_lines[0]["message"] == "info in cli"
+    assert "scope" not in log_lines[0]
 
     assert log_lines[1]["name"] == "tests.example_top_library"
     assert log_lines[1]["message"] == "info in top_library_function"
+    assert "scope" not in log_lines[1]
 
     assert log_lines[2]["name"] == "tests.example_lower_library"
     assert log_lines[2]["message"] == "info in lower_library_function"
+    assert "scope" not in log_lines[2]
 
 
 def test_debug():
@@ -49,7 +54,6 @@ def test_debug():
     print(len(log_lines))
 
     for l in log_lines:
-        print(l)
         assert datetime.now(tz=UTC) - datetime.fromisoformat(l["datetime"]) < timedelta(
             seconds=1
         )
@@ -57,22 +61,55 @@ def test_debug():
     assert len(log_lines) == 6
 
     assert log_lines[0]["message"] == "info in cli"
+    assert "scope" not in log_lines[0]
 
     assert log_lines[1]["name"] == "__main__"
     assert log_lines[1]["level"] == "DEBUG"
     assert log_lines[1]["message"] == "debug in cli"
+    assert "scope" not in log_lines[1]
 
     assert log_lines[2]["message"] == "info in top_library_function"
+    assert "scope" not in log_lines[2]
 
     assert log_lines[3]["name"] == "tests.example_top_library"
     assert log_lines[3]["level"] == "DEBUG"
     assert log_lines[3]["message"] == "debug in top_library_function"
+    assert "scope" not in log_lines[3]
 
     assert log_lines[4]["message"] == "info in lower_library_function"
+    assert "scope" not in log_lines[4]
 
     assert log_lines[5]["name"] == "tests.example_lower_library"
     assert log_lines[5]["level"] == "DEBUG"
     assert log_lines[5]["message"] == "debug in lower_library_function"
+    assert "scope" not in log_lines[5]
+
+
+def test_debugging_formatter():
+    r = run_cli("--with-scope")
+    assert r.returncode == 0
+    assert r.stdout.decode() == "Hello World\n"
+    log_lines = parse_log_lines(r.stderr.decode(), True)
+
+    for l in log_lines:
+        assert datetime.now(tz=UTC) - datetime.fromisoformat(l["datetime"]) < timedelta(
+            seconds=10
+        )
+        assert l["app"] == "example_cli"
+        assert l["level"] == "INFO"
+    assert len(log_lines) == 3
+
+    assert log_lines[0]["name"] == "__main__"
+    assert log_lines[0]["message"] == "info in cli"
+    assert log_lines[0]["scope"] == "example_cli.cli:25"
+
+    assert log_lines[1]["name"] == "tests.example_top_library"
+    assert log_lines[1]["message"] == "info in top_library_function"
+    assert log_lines[1]["scope"] == "example_top_library.top_library_function:8"
+
+    assert log_lines[2]["name"] == "tests.example_lower_library"
+    assert log_lines[2]["message"] == "info in lower_library_function"
+    assert log_lines[2]["scope"] == "example_lower_library.lower_library_function:7"
 
 
 def test_file(tmp_path):
@@ -105,15 +142,21 @@ def test_file(tmp_path):
 
 # example: '\x1b[97m2026-01-07T17:47:46Z - example_cli - tests.example_cli - INFO - cli info\x1b[0m'
 LOG_PATTERN = r".*(?P<datetime>[0-9]{4}-.*?) - (?P<app>.+?) - (?P<name>.+?) - (?P<level>\w+) - (?P<message>.+?)(\x1b.*|$)"
+DEBUGGING_LOG_PATTERN = r".*(?P<datetime>[0-9]{4}-.*?) - (?P<app>.+?) - (?P<name>.+?) - (?P<level>\w+) - (?P<scope>.*?) - (?P<message>.+?)(\x1b.*|$)"
 
 
-def parse_log_lines(text: str) -> list[dict[str, str]]:
+def parse_log_lines(text: str, with_scope: bool = False) -> list[dict[str, str]]:
+    if with_scope:
+        regex = DEBUGGING_LOG_PATTERN
+    else:
+        regex = LOG_PATTERN
+
     log_lines = text.strip().split("\n")
     result = []
     for l in log_lines:
         if not l:
             continue
-        m = re.match(LOG_PATTERN, l)
+        m = re.match(regex, l)
         if m:
             result.append(m.groupdict())
         else:

@@ -4,8 +4,6 @@ import subprocess
 import sys
 from datetime import UTC, datetime, timedelta
 
-from sqlalchemy import False_
-
 from tests import example_cli
 
 

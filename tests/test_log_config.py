@@ -4,9 +4,11 @@ import airrlogger.log_config as log_config
 from airrlogger.log_config import (
     DebuggingFormatter,
     DefaultFormatter,
+    _redact,
     configure_logging,
     get_config_dict,
     get_logger,
+    redacted,
 )
 
 
@@ -172,3 +174,40 @@ def test_default_formatter_app_name_default(monkeypatch):
     monkeypatch.setattr(log_config, "__name__", "mymodule")
     formatter = DefaultFormatter()
     assert formatter.app_name == "."
+
+
+def test__redact():
+    assert _redact("a") == "xx"
+    assert _redact("ab") == "xx"
+    assert _redact("abc") == "a...c"
+    assert _redact("abcd") == "a...d"
+    assert _redact("abcde") == "ab...de"
+    assert _redact("abcdef") == "ab...ef"
+    assert _redact("abcdefg") == "ab...fg"
+    assert _redact("abcdefgh") == "ab...gh"
+
+
+def test_redacted():
+    assert redacted("a") == "xx"
+    assert redacted("ab") == "xx"
+    assert redacted("abc") == "a...c"
+    assert redacted("abcd") == "a...d"
+    assert redacted("abcde") == "ab...de"
+    assert redacted("abcdef") == "ab...ef"
+    assert redacted("abcdefg") == "ab...fg"
+    assert redacted("abcdefgh") == "ab...gh"
+
+    assert redacted({"a": "abcdefgh", "b": 1}) == {"a": "ab...gh", "b": 1}
+    assert redacted({"a": "abcdefgh", "b": "ijklmnop"}) == {
+        "a": "ab...gh",
+        "b": "ij...op",
+    }
+    assert redacted(["a", "b", "cdefgh", 1]) == ["xx", "xx", "cd...gh", 1]
+    assert redacted(("a", "b", "cdefgh", 1)) == ("xx", "xx", "cd...gh", 1)
+    assert redacted(("a", "b", "cdefgh", {})) == ("xx", "xx", "cd...gh", {})
+    assert redacted(("a", "b", "cdefgh", {"thing": "abcdefghijkl"})) == (
+        "xx",
+        "xx",
+        "cd...gh",
+        {"thing": "ab...kl"},
+    )

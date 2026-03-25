@@ -178,3 +178,28 @@ def get_config_dict(
         config["root"]["handlers"].append("file")
 
     return config
+
+
+def redacted(value):
+    if isinstance(value, str):
+        return _redact(value)
+    if isinstance(value, dict):
+        return {k: redacted(v) for k, v in value.items()}
+    if isinstance(value, list):
+        return [redacted(v) for v in value]
+    if isinstance(value, tuple):
+        return tuple(
+            redacted(v) for v in value
+        )  # explicit cast to return a tuple, not a generator, to compare w/ tuples
+    return value
+
+
+def _redact(value: str) -> str:
+    if not isinstance(value, str):
+        return value
+    l = len(value)
+    if l <= 2:
+        return "xx"
+    if l <= 4:
+        return f"{value[0]}...{value[-1]}"
+    return f"{value[:2]}...{value[-2:]}"

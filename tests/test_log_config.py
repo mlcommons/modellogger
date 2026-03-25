@@ -76,6 +76,39 @@ def test_configure_logging():
     assert isinstance(root_logger.handlers[-1], logging.StreamHandler)
 
 
+def test_configure_logging_is_idempotent(tmp_path):
+    root_logger = logging.getLogger()
+    root_logger.handlers.clear()
+
+    starting_num_handlers = len(root_logger.handlers)
+
+    # stream handlers
+    configure_logging("an_app")
+    assert len(root_logger.handlers) == starting_num_handlers + 1
+    configure_logging("an_app")
+    configure_logging("an_app")
+    assert len(root_logger.handlers) == starting_num_handlers + 1
+    # add another stream handler with a different formatter
+    configure_logging("an_app", formatter=DebuggingFormatter)
+    assert len(root_logger.handlers) == starting_num_handlers + 2
+
+    # file handlers
+    log_file = tmp_path / "test.log"
+    configure_logging("an_app", log_file=log_file)
+    assert len(root_logger.handlers) == starting_num_handlers + 3
+    configure_logging("an_app", log_file=log_file)
+    configure_logging("an_app", log_file=log_file)
+    assert len(root_logger.handlers) == starting_num_handlers + 3
+    # add another file handler with a different formatter
+    configure_logging("an_app", log_file=log_file, formatter=DebuggingFormatter)
+    assert len(root_logger.handlers) == starting_num_handlers + 4
+    configure_logging("an_app", log_file=log_file, formatter=DebuggingFormatter)
+    assert len(root_logger.handlers) == starting_num_handlers + 4
+    new_log_file = tmp_path / "other_test.log"
+    configure_logging("an_app", log_file=new_log_file, formatter=DebuggingFormatter)
+    assert len(root_logger.handlers) == starting_num_handlers + 5
+
+
 def test_configure_logging_with_file(tmp_path):
     log_file = tmp_path / "test.log"
     configure_logging("an_app", log_file=log_file)

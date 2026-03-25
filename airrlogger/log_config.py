@@ -95,9 +95,6 @@ def configure_logging(
 ) -> None:
     """Configures the root logger. Preserves existing handlers (if any).
 
-    NOTE: if you call this function multiple times, you may end up with
-    duplicate log messages, since each call adds new handlers to the root logger.
-
     Args:
         app_name: Name of the application to include in log messages.
         level: Logging level to set.
@@ -106,11 +103,30 @@ def configure_logging(
     logger = logging.getLogger()
     logger.setLevel(level)
 
+    # Prevent dupe file handlers
+    # This allows you to add handlers by calling the function again,
+    # without getting duplicate entries in your existing logs.
     if log_file:
+        for h in logger.handlers:
+            if (
+                isinstance(h, logging.FileHandler)
+                and h.baseFilename == os.path.abspath(log_file)
+                and isinstance(h.formatter, formatter)
+            ):
+                return
         file_handler = logging.FileHandler(log_file)
         file_handler.setFormatter(formatter(app_name, include_colors=False))
         logger.addHandler(file_handler)
     else:
+        # prevent dupe stream handlers too
+        for h in logger.handlers:
+            if (
+                isinstance(h, logging.StreamHandler)
+                and not isinstance(h, logging.FileHandler)
+                and h.stream is sys.stderr
+                and isinstance(h.formatter, formatter)
+            ):
+                return
         console_handler = logging.StreamHandler(stream=sys.stderr)
         console_handler.setFormatter(formatter(app_name, include_colors=True))
         logger.addHandler(console_handler)

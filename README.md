@@ -68,8 +68,7 @@ There is some performance overhead with this method you should keep in mind in a
 
 ### configure_logging
 
-A function that configure the root logger with console and optional file output. You can call it multiple times
-with different loggers or formatters and they will be added to the root logger's log handlers.
+A function that configure the root logger with console and optional file output.
 
 ```python
 from airrlogger.log_config import configure_logging

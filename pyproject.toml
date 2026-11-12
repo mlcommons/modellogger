@@ -1,10 +1,10 @@
 [tool.poetry]
 name = "airrlogger"
-version = "0.1.1"
+version = "0.1.2"
 description = "Python logging configuration library for MLCommons AIRR applications."
 authors = ["Daniel Hosterman <daniel@mlcommons.org>"]
 readme = "README.md"
-packages = [{include = "airrlogger"}]
+packages = [{ include = "airrlogger" }]
 homepage = "https://github.com/mlcommons/modellogger"
 repository = "https://github.com/mlcommons/modellogger"
 documentation = "https://github.com/mlcommons/modellogger#readme"
@@ -28,3 +28,6 @@ isort = "^7.0.0"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 120

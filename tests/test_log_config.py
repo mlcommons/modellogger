@@ -14,9 +14,7 @@ from airrlogger.log_config import (
 
 def test_default_formatter_no_colors():
     formatter = DefaultFormatter(app_name="test_app", include_colors=False)
-    record = logging.LogRecord(
-        "name", logging.INFO, "pathname", 123, "message", [], None
-    )
+    record = logging.LogRecord("name", logging.INFO, "pathname", 123, "message", [], None)
     formatted = formatter.format(record)
     assert "test_app" in formatted
     assert "INFO" in formatted
@@ -26,9 +24,7 @@ def test_default_formatter_no_colors():
 
 def test_default_formatter_with_colors():
     formatter = DefaultFormatter(app_name="test_app", include_colors=True)
-    record = logging.LogRecord(
-        "name", logging.WARNING, "pathname", 123, "message", [], None
-    )
+    record = logging.LogRecord("name", logging.WARNING, "pathname", 123, "message", [], None)
     formatted = formatter.format(record)
     assert "test_app" in formatted
     assert "WARNING" in formatted
@@ -39,9 +35,7 @@ def test_default_formatter_with_colors():
 
 def test_default_formatter_timestamp_utc():
     formatter = DefaultFormatter(include_colors=False)
-    record = logging.LogRecord(
-        "name", logging.INFO, "pathname", 123, "message", [], None
-    )
+    record = logging.LogRecord("name", logging.INFO, "pathname", 123, "message", [], None)
     # this is 2021-01-01 00:00:00 UTC
     record.created = 1609459200.0
     formatted = formatter.format(record)
@@ -151,9 +145,7 @@ def test_get_config_dict_with_include_colors():
 
 
 def test_get_config_dict_with_debug_file():
-    config = get_config_dict(
-        app_name="test_app", level=logging.WARN, log_file="/tmp/app.log"
-    )
+    config = get_config_dict(app_name="test_app", level=logging.WARN, log_file="/tmp/app.log")
     assert "file" in config["handlers"]
     file_handler = config["handlers"]["file"]
     assert file_handler["filename"] == "/tmp/app.log"

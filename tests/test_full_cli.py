@@ -10,9 +10,7 @@ from tests import example_cli
 def run_cli(*args) -> subprocess.CompletedProcess:
     # noinspection PyTypeChecker
     target = pathlib.Path(example_cli.__file__).parent / "example_cli.py"
-    result = subprocess.run(
-        [sys.executable, str(target)] + list(args), capture_output=True
-    )
+    result = subprocess.run([sys.executable, str(target)] + list(args), capture_output=True)
     return result
 
 
@@ -24,9 +22,7 @@ def test_basics():
 
     for l in log_lines:
         # print(l)
-        assert datetime.now(tz=UTC) - datetime.fromisoformat(l["datetime"]) < timedelta(
-            seconds=10
-        )
+        assert datetime.now(tz=UTC) - datetime.fromisoformat(l["datetime"]) < timedelta(seconds=10)
         assert l["app"] == "example_cli"
         assert l["level"] == "INFO"
     assert len(log_lines) == 3
@@ -52,9 +48,7 @@ def test_debug():
     print(len(log_lines))
 
     for l in log_lines:
-        assert datetime.now(tz=UTC) - datetime.fromisoformat(l["datetime"]) < timedelta(
-            seconds=1
-        )
+        assert datetime.now(tz=UTC) - datetime.fromisoformat(l["datetime"]) < timedelta(seconds=1)
         assert l["app"] == "example_cli"
     assert len(log_lines) == 6
 
@@ -90,9 +84,7 @@ def test_debugging_formatter():
     log_lines = parse_log_lines(r.stderr.decode(), True)
 
     for l in log_lines:
-        assert datetime.now(tz=UTC) - datetime.fromisoformat(l["datetime"]) < timedelta(
-            seconds=10
-        )
+        assert datetime.now(tz=UTC) - datetime.fromisoformat(l["datetime"]) < timedelta(seconds=10)
         assert l["app"] == "example_cli"
         assert l["level"] == "INFO"
     assert len(log_lines) == 3
@@ -121,9 +113,7 @@ def test_file(tmp_path):
 
     for l in log_lines:
         # print(l)
-        assert datetime.now(tz=UTC) - datetime.fromisoformat(l["datetime"]) < timedelta(
-            seconds=10
-        )
+        assert datetime.now(tz=UTC) - datetime.fromisoformat(l["datetime"]) < timedelta(seconds=10)
         assert l["app"] == "example_cli"
         assert l["level"] == "INFO"
     assert len(log_lines) == 3
@@ -139,7 +129,9 @@ def test_file(tmp_path):
 
 
 # example: '\x1b[97m2026-01-07T17:47:46Z - example_cli - tests.example_cli - INFO - cli info\x1b[0m'
-LOG_PATTERN = r".*(?P<datetime>[0-9]{4}-.*?) - (?P<app>.+?) - (?P<name>.+?) - (?P<level>\w+) - (?P<message>.+?)(\x1b.*|$)"
+LOG_PATTERN = (
+    r".*(?P<datetime>[0-9]{4}-.*?) - (?P<app>.+?) - (?P<name>.+?) - (?P<level>\w+) - (?P<message>.+?)(\x1b.*|$)"
+)
 DEBUGGING_LOG_PATTERN = r".*(?P<datetime>[0-9]{4}-.*?) - (?P<app>.+?) - (?P<name>.+?) - (?P<level>\w+) - (?P<scope>.*?) - (?P<message>.+?)(\x1b.*|$)"
 
 

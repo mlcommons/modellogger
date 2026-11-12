@@ -56,10 +56,7 @@ class CallStackFilter(logging.Filter):
     def filter(self, record: logging.LogRecord) -> bool:
         frame = inspect.currentframe()
         while frame is not None:
-            if (
-                frame.f_code.co_filename == record.pathname
-                and frame.f_lineno == record.lineno
-            ):
+            if frame.f_code.co_filename == record.pathname and frame.f_lineno == record.lineno:
                 chunks = []
 
                 module = os.path.splitext(os.path.basename(record.pathname))[0]
@@ -128,8 +125,18 @@ def configure_logging(
             ):
                 return
         console_handler = logging.StreamHandler(stream=sys.stderr)
-        console_handler.setFormatter(formatter(app_name, include_colors=True))
+        console_handler.setFormatter(formatter(app_name, include_colors=_stream_supports_color(sys.stderr)))
         logger.addHandler(console_handler)
+
+
+def _stream_supports_color(stream) -> bool:
+    """Only emit color codes when writing to an interactive terminal.
+    This keeps funky color codes out of logs that get parsed by machine (e.g. Google Cloud)."""
+    isatty = getattr(stream, "isatty", None)
+    try:
+        return bool(isatty and isatty())
+    except (ValueError, OSError):  # e.g. closed stream
+        return False
 
 
 def get_logger(name: str) -> logging.Logger:
